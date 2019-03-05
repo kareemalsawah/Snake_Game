@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet">
+<title>Snake Game</title>
+<body>
+<h1>The Snake Game</h1>
+<canvas id="myCanvas" width="600" height="400"></canvas>
+
+<div class="scores">
+<a id="your">Your Score : 0</a>
+<a id="high">High Score : 0</a>
+</div>
+
+<style>
+#your{
+margin-right:240px;
+}
+
+.scores{
+text-align:center;
+font-family:Lobster;
+font-size:1.5em;
+}
+
+h1{
+font-size:5.0em;
+font-family:Lobster;
+text-align:center;
+margin-top:0px;
+}
+body{
+background-color:#999;
+}
+
+canvas{
+padding-left:0;
+padding-right:0;
+margin-right:auto;
+margin-left:auto;
+display:block;
+}
+</style>
+<script>
+var c=document.getElementById("myCanvas");
+ctx=c.getContext("2d");
+
+ctx.beginPath();
+ctx.rect(0,0,600,400);
+ctx.fillStyle="black";
+ctx.fill();
+
+var px=20;
+var py=200;
+var directionx=1;
+var directiony = 0;
+var applex = 0;
+var appley = 0;
+var rects=[];
+var apples=[];
+var score=5;
+var alive=true;
+var tmr=0;
+var highScore = 0;
+
+document.onkeydown = function userInput(){
+switch(event.keyCode){
+case 37:
+if (directionx!=1){
+directionx = -1;
+directiony = 0;
+}
+break;
+case 38:
+if (directiony!=1){
+directionx = 0;
+directiony = -1;
+}
+break;
+case 39:
+if (directionx!=-1){
+directionx = 1;
+directiony = 0;
+}
+break;
+case 40:
+if (directiony!=-1){
+directionx = 0;
+directiony = 1;
+}
+break;
+}
+}
+
+applex=Math.floor(Math.random()*(600/20))*20;
+appley=Math.floor(Math.random()*(400/20))*20;
+apples.push(new Apple(applex,appley));
+
+setInterval(function(){
+if (alive){
+if (tmr >= 2){
+
+ctx.beginPath();
+ctx.rect(0,0,600,400);
+ctx.fillStyle="black";
+ctx.fill();
+
+px += (directionx*20);
+py += (directiony*20);
+rects.push(new Square(px,py));
+tmr = 0;
+}else{tmr++;}
+
+if (rects.length>score){
+rects.splice(0,1);
+}
+
+for (var i = 0; i < rects.length; i++){
+rects[i].update();
+for (var j = 0; j < rects.length; j++){
+if (rects[i].isIntersecting(rects[j])&&i!=j){
+alive=false;
+}
+}
+}
+
+for (var a = 0; a < apples.length; a++){
+apples[a].update();
+}
+
+if (px==applex&&py==appley){
+score++;
+document.getElementById("your").innerHTML = "Your Score : "+(score-5);
+if ((score-5)>highScore){
+highScore=score-5;
+document.getElementById("high").innerHTML = "High Score : "+highScore;
+}
+applex=Math.floor(Math.random()*(600/20))*20;
+appley=Math.floor(Math.random()*(400/20))*20;
+apples.splice(0,1);
+apples.push(new Apple(applex,appley));
+}
+
+if (px<0||px>580||py<0||py>380){
+alive=false;
+}
+}else{
+
+ctx.beginPath();
+ctx.rect(0,0,600,400);
+ctx.fillStyle="red";
+ctx.fill();
+alert("You Died!");
+score = 5;
+document.getElementById("your").innerHTML = "Your Score : "+(score-5);
+rects = [];
+apples = [];
+applex=Math.floor(Math.random()*(600/20))*20;
+appley=Math.floor(Math.random()*(400/20))*20;
+apples.push(new Apple(applex,appley));
+alive=true;
+px=20;
+py=200;
+directionx=1;
+directiony = 0;
+ctx.beginPath();
+ctx.rect(0,0,600,400);
+ctx.fillStyle="black";
+ctx.fill();
+
+}
+
+function Square(x,y){
+this.x = x;
+this.y = y;
+
+this.update = function(){
+ctx.beginPath();
+ctx.rect(this.x,this.y,20,20);
+ctx.fillStyle="white";
+ctx.fill();
+
+ctx.beginPath();
+ctx.strokeStyle="black";
+ctx.strokeRect(this.x,this.y,20,20);
+}
+
+this.isIntersecting = function(other){
+if (this.x==other.x&&this.y==other.y){
+return true;
+}else{
+return false;
+}
+}
+}
+
+},20);
+
+function Apple(x,y){
+this.x = x;
+this.y = y;
+
+this.update = function(){
+ctx.beginPath();
+ctx.rect(this.x,this.y,20,20);
+ctx.fillStyle="red";
+ctx.fill();
+
+ctx.beginPath();
+ctx.strokeStyle="black";
+ctx.strokeRect(this.x,this.y,20,20);
+}
+}
+
+
+</script>
+</body>
+</html>
